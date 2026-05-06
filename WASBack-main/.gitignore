@@ -1,0 +1,6 @@
+node_modules/
+.env
+uploads/sessions/
+.wwebjs_auth/
+.wwebjs_cache/
+*.gz

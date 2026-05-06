@@ -1,0 +1,32 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: was-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node src/app.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: DEFAULT_TIMEZONE
+        value: Asia/Kolkata
+      - key: APP_NAME
+        value: WA Scheduler
+
+  # Frontend Static Site
+  - type: static
+    name: was-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
