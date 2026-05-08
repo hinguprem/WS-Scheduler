@@ -32,6 +32,25 @@ async function seed() {
     console.log('       ⚠️  Change the password after first login!');
   }
 
+  const demoEmail = 'WorkingDemoUser@example.com';
+  const existingDemo = await User.findOne({ email: demoEmail });
+
+  if (existingDemo) {
+    console.log('[Seed] Demo user already exists — skipping');
+  } else {
+    const demoHash = await bcrypt.hash('workingdemouser@123', 10);
+    await User.create({
+      username:      'DemoUser',
+      email:         demoEmail,
+      password_hash: demoHash,
+      role:          'user',
+      timezone:      'Asia/Kolkata',
+    });
+    console.log('[Seed] ✅ Demo user created:');
+    console.log(`       Email:    ${demoEmail}`);
+    console.log('       Password: workingdemouser@123');
+  }
+
   await mongoose.disconnect();
   console.log('[Seed] Done');
 }

@@ -384,14 +384,69 @@ tr:last-child td { border-bottom: none; }
 }
 .wa-icon { font-size: 48px; filter: drop-shadow(0 4px 8px rgba(37,211,102,0.4)); }
 
+/* ── Responsive Mobile Topbar ─────────────────────────────────────────── */
+.mobile-topbar {
+  display: none;
+  height: 60px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 110;
+  width: 100%;
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.logo-icon-sm {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(37,211,102,0.3);
+}
+
+.menu-btn {
+  background: none; border: none; color: var(--text);
+  font-size: 24px; cursor: pointer; padding: 4px;
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
+  .app-shell { flex-direction: column; }
+  .mobile-topbar { display: flex; }
+  .sidebar { transform: translateX(-100%); z-index: 1000; box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
   .sidebar.open { transform: translateX(0); }
-  .main-content { margin-left: 0; }
+  .sidebar-overlay {
+    display: block;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+  }
+  .main-content { margin-left: 0; width: 100%; min-height: calc(100vh - 60px); }
   .page { padding: 16px; }
   .form-row { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
+  .topbar { position: static; padding: 0 16px; height: auto; padding-top: 16px; border-bottom: none; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .section-header { flex-direction: column; align-items: flex-start; }
 }
 
 /* ── Utility ──────────────────────────────────────────────────────────── */

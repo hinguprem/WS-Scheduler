@@ -4,7 +4,6 @@ const WAContact = require('../models/WAContact');
 const WASession = require('../models/WASession');
 
 function resolveUserId(req) {
-  if (req.user.role === 'admin' && req.query.userId) return req.query.userId;
   return req.user.id;
 }
 
@@ -59,6 +58,12 @@ async function disconnect(req, res) {
   try {
     const userId = resolveUserId(req);
     await waService.disconnectClient(userId);
+    
+    await WASession.deleteMany({ user_id: userId });
+    await WAGroup.deleteMany({ user_id: userId });
+    await WAContact.deleteMany({ user_id: userId });
+    console.log(`[WA:${userId}] Cleared session data, groups, and contacts on disconnect`);
+
     res.json({ message: 'WhatsApp disconnected', userId });
   } catch (err) {
     res.status(500).json({ message: err.message || 'Internal server error' });

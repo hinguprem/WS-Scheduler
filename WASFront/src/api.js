@@ -25,6 +25,7 @@ api.interceptors.response.use(
 // Auth
 export const login  = (email, password) => api.post('/auth/login', { email, password });
 export const getMe  = () => api.get('/auth/me');
+export const createDemo = () => api.post('/auth/demo');
 
 // WhatsApp
 export const getWAStatus = () => api.get('/whatsapp/status');

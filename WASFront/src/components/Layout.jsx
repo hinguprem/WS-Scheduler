@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -15,6 +16,11 @@ const adminItems = [
 export default function Layout() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  function closeSidebar() {
+    setIsSidebarOpen(false);
+  }
 
   function logout() {
     localStorage.removeItem('token');
@@ -25,8 +31,24 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
+      {/* Mobile Topbar */}
+      <div className="mobile-topbar">
+        <div className="mobile-logo">
+          <span className="logo-icon-sm">📱</span> 
+          <span style={{ fontWeight: 700 }}>WA Scheduler</span>
+        </div>
+        <button className="menu-btn" onClick={() => setIsSidebarOpen(true)}>
+          ☰
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div className="sidebar-overlay" onClick={closeSidebar}></div>
+      )}
+
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
           <div className="logo-icon">📱</div>
           <div>
@@ -43,6 +65,7 @@ export default function Layout() {
                 key={item.to}
                 to={item.to}
                 end={item.end}
+                onClick={closeSidebar}
                 className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               >
                 <span className="nav-icon">{item.icon}</span>
@@ -58,6 +81,7 @@ export default function Layout() {
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  onClick={closeSidebar}
                   className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 >
                   <span className="nav-icon">{item.icon}</span>

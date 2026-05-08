@@ -1,13 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { login } from '../api.js';
+import { login, createDemo } from '../api.js';
 
 export default function LoginPage() {
   const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading]   = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const navigate = useNavigate();
+
+  async function handleDemo() {
+    setDemoLoading(true);
+    try {
+      const { data } = await createDemo();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      toast.success('Welcome to your 24-Hour Demo!');
+      navigate('/', { replace: true });
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create demo account');
+    } finally {
+      setDemoLoading(false);
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -41,7 +57,7 @@ export default function LoginPage() {
             <input
               type="email"
               className="form-control"
-              placeholder="admin@example.com"
+              placeholder="user@example.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
               autoFocus
@@ -57,13 +73,17 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn btn-primary w-full" disabled={loading} style={{ marginTop: 8 }}>
+          <button type="submit" className="btn btn-primary w-full" disabled={loading || demoLoading} style={{ marginTop: 8 }}>
             {loading ? <span className="spinner" /> : '🔐'} Sign In
+          </button>
+          
+          <button type="button" onClick={handleDemo} className="btn btn-secondary w-full" disabled={loading || demoLoading} style={{ marginTop: 12 }}>
+            {demoLoading ? <span className="spinner" /> : '🚀'} Try 24-Hour Demo
           </button>
         </form>
 
         <p className="text-muted text-sm mt-4" style={{ textAlign: 'center' }}>
-          Default: admin@whatsapp-scheduler.com / Admin@123
+          Want an account? Contact us on WhatsApp at <strong>+91 9512922405</strong>
         </p>
       </div>
     </div>

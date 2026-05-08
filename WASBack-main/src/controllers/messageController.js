@@ -125,7 +125,7 @@ async function updateMessage(req, res) {
 
     const msg = await ScheduledMessage.findById(id);
     if (!msg) return res.status(404).json({ message: 'Message not found' });
-    if (req.user.role !== 'admin' && msg.user_id.toString() !== req.user.id) {
+    if (msg.user_id.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Forbidden' });
     }
     if (msg.status !== 'pending') {
@@ -161,7 +161,7 @@ async function deleteMessage(req, res) {
     const { id } = req.params;
     const msg = await ScheduledMessage.findById(id);
     if (!msg) return res.status(404).json({ message: 'Message not found' });
-    if (req.user.role !== 'admin' && msg.user_id.toString() !== req.user.id) {
+    if (msg.user_id.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Forbidden' });
     }
     if (msg.status !== 'pending') {

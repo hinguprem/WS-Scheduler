@@ -12,6 +12,35 @@ function emitToUser(userId, event, data) {
 }
 
 let schedulerTask = null;
+let demoCleanupTask = null;
+
+async function cleanUpDemoAccounts() {
+  try {
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const demoUsers = await User.find({ email: /@demo\.com$/, created_at: { $lte: cutoff } });
+    
+    if (demoUsers.length > 0) {
+      const WAGroup = require('../models/WAGroup');
+      const WAContact = require('../models/WAContact');
+      const WASession = require('../models/WASession');
+
+      for (const user of demoUsers) {
+        const userId = user._id.toString();
+        await waService.disconnectClient(userId);
+        
+        await WASession.deleteMany({ user_id: userId });
+        await WAGroup.deleteMany({ user_id: userId });
+        await WAContact.deleteMany({ user_id: userId });
+        await ScheduledMessage.deleteMany({ user_id: userId });
+        await User.findByIdAndDelete(userId);
+        
+        console.log(`[Scheduler] Cleaned up expired demo account: ${user.email}`);
+      }
+    }
+  } catch (err) {
+    console.error('[Scheduler] Demo account cleanup failed:', err.message);
+  }
+}
 
 async function getUserInfo(userId) {
   try {
@@ -256,16 +285,15 @@ async function processMessages() {
 
 function startScheduler() {
   if (schedulerTask) { console.log('[Scheduler] Already running'); return; }
-  schedulerTask = cron.schedule('* * * * *', async () => { await processMessages(); });
-  setTimeout(() => {
-    const second = cron.schedule('* * * * *', async () => { await processMessages(); });
-    schedulerTask._secondTask = second;
-  }, 30000);
-  console.log('[Scheduler] Started — running every 30 seconds');
+  schedulerTask = cron.schedule('*/30 * * * * *', async () => { await processMessages(); });
+  demoCleanupTask = cron.schedule('0 * * * *', async () => { await cleanUpDemoAccounts(); });
+  console.log('[Scheduler] Started — running every 30 seconds (Demo cleanup hourly)');
 }
 
 function stopScheduler() {
-  if (schedulerTask) { schedulerTask.stop(); schedulerTask = null; console.log('[Scheduler] Stopped'); }
+  if (schedulerTask) { schedulerTask.stop(); schedulerTask = null; }
+  if (demoCleanupTask) { demoCleanupTask.stop(); demoCleanupTask = null; }
+  console.log('[Scheduler] Stopped');
 }
 
 module.exports = { startScheduler, stopScheduler, processMessages, sendMessage };
